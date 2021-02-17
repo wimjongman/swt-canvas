@@ -1,6 +1,8 @@
-[Flowfield](https://raw.githubusercontent.com/wiki/wimjongman/swt-canvas/images/flowfield.gif =250x)
-# SWT Canvas Artist
-This project is inspired by the [Coding Train](https://www.youtube.com/user/shiffman) channel of Daniel Shiffman and mimics [Processing](https://processing.org/) using the [SWT](https://www.eclipse.org/swt/) Canvas and GraphicsContext.
+# SWT Canvas Artist        
+This project is inspired by the [Coding Train](https://www.youtube.com/user/shiffman) channel of Daniel Shiffman and mimics [Processing](https://processing.org/) using the [SWT](https://www.eclipse.org/swt/) [Canvas and GraphicsContext.](https://www.eclipse.org/articles/Article-SWT-graphics/SWT_graphics.html) 
+
+![FlowField](https://raw.githubusercontent.com/wiki/wimjongman/swt-canvas/images/flowfield_small.gif) 
+<br/>*FlowField*
 
 ## What can it do
 The current version can do basic graphics, like drawing lines, text, pixels and ovals.
