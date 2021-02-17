@@ -1,6 +1,7 @@
 # SWT Canvas Artist        
-<img style="float: right" src="https://raw.githubusercontent.com/wiki/wimjongman/swt-canvas/images/flowfield_small.gif" height="150"/>
 This project is inspired by the [Coding Train](https://www.youtube.com/user/shiffman) channel of Daniel Shiffman and mimics [Processing](https://processing.org/) using the [SWT](https://www.eclipse.org/swt/) Canvas and GraphicsContext. 
+
+<img style="float: right" src="https://raw.githubusercontent.com/wiki/wimjongman/swt-canvas/images/flowfield_small.gif"/>
 
 ## What can it do
 The current version can do basic graphics, like drawing lines, text, pixels and ovals.
