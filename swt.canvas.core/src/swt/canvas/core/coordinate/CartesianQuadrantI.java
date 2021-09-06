@@ -14,12 +14,12 @@
 package swt.canvas.core.coordinate;
 
 /**
- * Maps the graphics coordinates to the Cartesian coordinates.
+ * Maps the graphics coordinates to the Cartesian coordinates quadrant I.
  *
  */
-public class CartesianCoordinateSystem extends BaseCoordinateSystem {
+public class CartesianQuadrantI extends BaseCoordinateSystem {
 
-	public CartesianCoordinateSystem(int width, int height) {
+	public CartesianQuadrantI(int width, int height) {
 		super(width, height);
 	}
 
@@ -31,7 +31,7 @@ public class CartesianCoordinateSystem extends BaseCoordinateSystem {
 	 */
 	@Override
 	public int gy(int y) {
-		return (fHeight / 2) - y;
+		return fHeight - y;
 	}
 
 	/**
@@ -42,7 +42,7 @@ public class CartesianCoordinateSystem extends BaseCoordinateSystem {
 	 */
 	@Override
 	public int gx(int x) {
-		return -(fWidth / 2) + x;
+		return x;
 	}
 
 	/**
@@ -53,7 +53,7 @@ public class CartesianCoordinateSystem extends BaseCoordinateSystem {
 	 */
 	@Override
 	public int cy(int y) {
-		return (fHeight / 2) - y;
+		return fHeight - y;
 	}
 
 	/**
@@ -64,7 +64,7 @@ public class CartesianCoordinateSystem extends BaseCoordinateSystem {
 	 */
 	@Override
 	public int cx(int x) {
-		return (fWidth / 2) + x;
+		return x;
 	}
 
 }

@@ -13,12 +13,14 @@
  */
 package swt.canvas.core;
 
+import java.lang.invoke.MethodHandles;
 import java.util.List;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StackLayout;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.Transform;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
@@ -90,10 +92,14 @@ public abstract class Engine {
 
 	private Image fPushPopBuffer;
 
+	private int fLastPointX, fLastPointY;
+
 	/** between 0 (transparent) and 255 (opaque). */
 	private int fAlpha = 255;
 
 	private Layout fLayout;
+
+	private Transform fTransform;
 
 	public Engine() {
 	}
@@ -160,7 +166,7 @@ public abstract class Engine {
 		fPushPopBuffer.getImageData().type = SWT.IMAGE_BMP;
 		// fPushImage = new Image(fDisplay, fWidth, fHeight);
 	}
-	
+
 	private void _setCoordinateSystem() {
 		if (fCoordinateSystem == null || fCoordinateSystem.getClass() == BaseCoordinateSystem.class) {
 			fCoordinateSystem = new BaseCoordinateSystem(fWidth, fHeight);
@@ -232,7 +238,21 @@ public abstract class Engine {
 			fGC.setLineWidth(fLineWidth);
 			fGC.setAlpha(fAlpha);
 			draw();
+			disposeTransform();
 		});
+	}
+
+	private void disposeTransform() {
+		if(fTransform != null) {
+			fTransform.dispose();
+		}
+	}
+
+	public void translate(float x, float y) {
+		disposeTransform();
+		fTransform = new Transform(fDisplay);
+		fTransform.translate(x, y);
+		fGC.setTransform(fTransform);
 	}
 
 	/**
@@ -267,54 +287,123 @@ public abstract class Engine {
 	 * @param x
 	 * @param y
 	 * @param radius
+	 * @return
+	 * 
+	 * @return this object, for fluent method chaining.
 	 */
-	public void drawCircle(int x, int y, int radius) {
+	public Engine drawCircle(int x, int y, int radius) {
 		drawOval(x, y, radius * 2, radius * 2);
+		return this;
 	}
 
 	/**
-	 * Draws a line from x1, y1 to x2, y2
+	 * Draws a line from x1, y1 to x2, y2.
+	 * 
+	 * Remembers the last point x2 and y2 to be used in subsequent line drawing
+	 * operations.
 	 * 
 	 * @param x1
 	 * @param y1
 	 * @param x2
 	 * @param y2
+	 * 
+	 * @return this object, for fluent method chaining.
 	 */
-	public void drawLine(int x1, int y1, int x2, int y2) {
+	public Engine drawLine(int x1, int y1, int x2, int y2) {
 		fGC.drawLine(cx(x1), cy(y1), cx(x2), cy(y2));
+		fLastPointX = x2;
+		fLastPointY = y2;
+		return this;
 	}
 
 	/**
-	 * Draws an oval.
+	 * Draws a line from the last point to x and y. The last point is determined by
+	 * any previous line draw operation and is 0,0 if no previous line was drawn..
+	 * 
+	 * @param x
+	 * @param y
+	 * 
+	 * @return this object, for fluent method chaining.
+	 */
+	public Engine drawLine(int x, int y) {
+		drawLine(fLastPointX, fLastPointY, x, y);
+		return this;
+	}
+
+	/**
+	 * Draws an oval with x and y as the center.
 	 * 
 	 * @param x
 	 * @param y
 	 * @param width
 	 * @param height
+	 * @return
+	 * @return this object, for fluent method chaining.
 	 */
-	public void drawOval(final int x, final int y, final int width, final int height) {
+	public Engine drawOval(final int x, final int y, final int width, final int height) {
 		fGC.drawOval(cx(x - width / 2), cy(y + height / 2), width, height);
+		return this;
 	}
 
 	/**
-	 * Draws a point at x,y
+	 * Draws a rectangle where x,y is the bottom left corner of the rectangle.
 	 * 
 	 * @param x
 	 * @param y
+	 * @param width
+	 * @param height
+	 * 
+	 * @return this object, for fluent method chaining.
 	 */
-	public void drawPoint(int x, int y) {
-		fGC.drawPoint(x, y);
+	public Engine drawRectangle(final int x, final int y, final int width, final int height) {
+		fGC.drawRectangle(cx(x), cy(y), width, -height);
+		return this;
 	}
 
 	/**
-	 * Draws a string on x , y on the current coordinate system
+	 * Draws a rounded rectangle where x,y is the bottom left corner of the
+	 * rectangle.
+	 * 
+	 * @param x
+	 * @param y
+	 * @param width
+	 * @param height
+	 * 
+	 * @return this object, for fluent method chaining.
+	 */
+	public Engine drawRectangle(final int x, final int y, final int width, final int height, final int arcWidth,
+			final int arcHeight) {
+		fGC.drawRoundRectangle(cx(x), cy(y), width, -height, arcWidth, arcHeight);
+		return this;
+	}
+
+	/**
+	 * Draws a point at x,y.
+	 * 
+	 * @param x
+	 * @param y
+	 * @return
+	 * 
+	 * @return this object, for fluent method chaining.
+	 */
+	public Engine drawPoint(int x, int y) {
+		fGC.drawPoint(x, y);
+		return this;
+	}
+
+	/**
+	 * Draws a string on x,y on the current coordinate system
 	 * 
 	 * @param string
 	 * @param x
 	 * @param y
+	 * @return
+	 * 
+	 * @return this object, for fluent method chaining.
 	 */
-	public void drawString(String string, int x, int y) {
+	public Engine drawString(String string, int x, int y) {
 		fGC.drawString(string, cx(x), cy(y));
+		return this;
 	}
 
 	/**

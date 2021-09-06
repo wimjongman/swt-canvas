@@ -17,7 +17,7 @@ import java.text.MessageFormat;
 import java.text.NumberFormat;
 
 import swt.canvas.core.Engine;
-import swt.canvas.core.coordinate.CartesianCoordinateSystem;
+import swt.canvas.core.coordinate.Cartesian;
 
 public class SosCasToa extends Engine {
 
@@ -32,7 +32,7 @@ public class SosCasToa extends Engine {
 
 	@Override
 	public void init() {
-		setCoordinateSystem(CartesianCoordinateSystem.class);
+		setCoordinateSystem(Cartesian.class);
 		twoDecs.setMaximumFractionDigits(2);
 		setLineWidth(1);
 	}

@@ -17,7 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import swt.canvas.core.Engine;
-import swt.canvas.core.coordinate.CartesianCoordinateSystem;
+import swt.canvas.core.coordinate.Cartesian;
 
 public class SolarSystem extends Engine {
 
@@ -29,7 +29,7 @@ public class SolarSystem extends Engine {
 
 	@Override
 	public void init() {
-		setCoordinateSystem(CartesianCoordinateSystem.class);
+		setCoordinateSystem(Cartesian.class);
 		setFPS(120);
 		bodies.add(new Body(20, 190, .01));
 		bodies.add(new Body(bodies.get(0), 5, 50, .005));
