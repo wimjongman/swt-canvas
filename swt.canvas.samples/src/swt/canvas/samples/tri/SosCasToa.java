@@ -17,6 +17,7 @@ import java.text.MessageFormat;
 import java.text.NumberFormat;
 
 import swt.canvas.core.Engine;
+import swt.canvas.core.coordinate.BaseCoordinateSystem;
 import swt.canvas.core.coordinate.Cartesian;
 
 public class SosCasToa extends Engine {
@@ -26,52 +27,68 @@ public class SosCasToa extends Engine {
 	}
 
 	int radius = 100;
-	double angle = 0.1;
+	double radians = 0.7;
 	private boolean loop = false;
-	NumberFormat twoDecs = NumberFormat.getInstance();
+	NumberFormat threeDecs = NumberFormat.getInstance();
 
 	@Override
 	public void init() {
 		setFPS(100);
 		setCoordinateSystem(Cartesian.class);
-		twoDecs.setMaximumFractionDigits(2);
+		threeDecs.setMaximumFractionDigits(3);
 		setLineWidth(1);
 	}
 
 	@Override
 	public void draw() {
 
-		int y = (int) (radius * Math.cos(angle));
-		int x = (int) (radius * Math.sin(angle));
+		int x = (int) (radius * Math.sin(radians));
+		int y = (int) (radius * Math.cos(radians));
 
-		String msg = MessageFormat.format("Radius {0}, angle {1}, x {2}, y {3} ", radius, twoDecs.format(angle), x, y);
-		drawString(msg, getWidth() + 10, getHeight() + 10);
+		drawText(x, y);
 
-		drawLine(-(getWidth() / 2), 0, (getWidth() / 2), 0);
-		drawLine(0, (getHeight() / 2), 0, -(getHeight() / 2));
+		String msg = "Single click to set a new corner, double click to stop/start the animation..";
+		drawString(msg, gx(10), gy(getHeight() - 20));
+
+		BaseCoordinateSystem cs = getCoordinateSystem();
+		drawLine(-cs.getSectionWidth(), 0, cs.getSectionWidth(), 0);
+		drawLine(0, cs.getSectionHeight(), 0, -cs.getSectionHeight());
 
 		if (loop)
-			angle += 0.005;
+			radians += 0.005;
 
-		if (angle > TWO_PI)
-			angle = 0.01;
+		if (radians > TWO_PI)
+			radians = 0.01;
 
 		drawCircle(0, 0, radius);
-//		drawCircle(0, 0, x);
-//		drawCircle(0, 0, y);
 
 		drawLine(0, 0, x, y);
 		drawLine(x, y, x, 0);
 		drawLine(x, 0, 0, 0);
 	}
 
+	private void drawText(int y, int x) {
+		int ypos = -10;
+		String msg = MessageFormat.format("Radius: {0}", radius);
+		drawString(msg, gx(10), gy(ypos += 20));
+		double degrees = radians * (180 / PI);
+		msg = MessageFormat.format("Angle Deg: {0}", threeDecs.format(degrees));
+		drawString(msg, gx(10), gy(ypos += 20));
+		msg = MessageFormat.format("Angle Rad: {0}", radians);
+		drawString(msg, gx(10), gy(ypos += 20));
+		msg = MessageFormat.format("x/y: {0}/{1}", x, y);
+		drawString(msg, gx(10), gy(ypos += 20));
+		msg = MessageFormat.format("FPS: {0}/{1}", getActualFPS(), getRequestedFPS());
+		drawString(msg, gx(10), gy(ypos += 20));
+	}
+
 	@Override
 	public void mouseClick(int x, int y) {
 		radius = (int) Math.sqrt((x * x) + (y * y));
-		angle = Math.atan((double) x / (double) y);
+		radians = Math.atan((double) x / (double) y);
 
 		if (y < 0) {
-			angle += PI;
+			radians += PI;
 		}
 		// hoek = (hoek + TWO_PI) / 2;
 

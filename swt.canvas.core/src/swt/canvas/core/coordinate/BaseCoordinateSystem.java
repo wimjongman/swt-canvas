@@ -67,4 +67,18 @@ public class BaseCoordinateSystem {
 		return x;
 	}
 
+	/**
+	 * @return the width of one section of the coordinate system
+	 */
+	public int getSectionWidth() {
+		return fWidth;
+	}
+	
+	/**
+	 * @return the height of one section of the coordinate system
+	 */
+	public int getSectionHeight() {
+		return fHeight;
+	}
+
 }
