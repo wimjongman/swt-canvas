@@ -31,7 +31,7 @@ public class Cartesian extends BaseCoordinateSystem {
 	 */
 	@Override
 	public int gy(int y) {
-		return getSectionHeight() - y;
+		return sh() - y;
 	}
 
 	/**
@@ -42,7 +42,7 @@ public class Cartesian extends BaseCoordinateSystem {
 	 */
 	@Override
 	public int gx(int x) {
-		return -getSectionWidth() + x;
+		return -sw() + x;
 	}
 
 	/**
@@ -53,7 +53,7 @@ public class Cartesian extends BaseCoordinateSystem {
 	 */
 	@Override
 	public int cy(int y) {
-		return getSectionHeight() - y;
+		return sh() - y;
 	}
 
 	/**
@@ -64,16 +64,16 @@ public class Cartesian extends BaseCoordinateSystem {
 	 */
 	@Override
 	public int cx(int x) {
-		return getSectionWidth() + x;
+		return sw() + x;
 	}
 
 	@Override
-	public int getSectionWidth() {
+	public int sw() {
 		return (fWidth / 2);
 	}
 
 	@Override
-	public int getSectionHeight() {
+	public int sh() {
 		return (fHeight / 2);
 	}
 }

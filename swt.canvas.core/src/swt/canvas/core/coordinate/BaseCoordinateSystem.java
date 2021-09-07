@@ -70,14 +70,14 @@ public class BaseCoordinateSystem {
 	/**
 	 * @return the width of one section of the coordinate system
 	 */
-	public int getSectionWidth() {
+	public int sw() {
 		return fWidth;
 	}
 	
 	/**
 	 * @return the height of one section of the coordinate system
 	 */
-	public int getSectionHeight() {
+	public int sh() {
 		return fHeight;
 	}
 

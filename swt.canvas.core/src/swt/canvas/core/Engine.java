@@ -56,9 +56,10 @@ public abstract class Engine {
 	protected long fLastDrawTimeStamp;
 
 	/** The current frames per second */
-	protected int fActualFPS = 0;
+	protected int fFPSActual = 0;
 	protected int fFPSCounter = 0;
 	protected int fFPSDelay = 20;
+	private int fRequestedFPS;
 
 	private GC fGC;
 
@@ -84,7 +85,6 @@ public abstract class Engine {
 
 	private boolean fInitDone;
 
-	private int fRequestedFPS;
 
 	private Shell fShell;
 
@@ -105,7 +105,7 @@ public abstract class Engine {
 	private void _loop() {
 		if (getRequestedFPS() > 0) {
 			if (System.currentTimeMillis() > fLastDrawTimeStamp) {
-				fActualFPS = fFPSCounter;
+				fFPSActual = fFPSCounter;
 				fFPSCounter = 0;
 				fLastDrawTimeStamp = System.currentTimeMillis() + 1000;
 			} else {
@@ -422,7 +422,7 @@ public abstract class Engine {
 	 * @return the actual FPS
 	 */
 	public int getActualFPS() {
-		return fActualFPS;
+		return fFPSActual;
 	}
 
 	/**

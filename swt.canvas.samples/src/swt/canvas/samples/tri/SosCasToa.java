@@ -51,8 +51,8 @@ public class SosCasToa extends Engine {
 		drawString(msg, gx(10), gy(getHeight() - 20));
 
 		BaseCoordinateSystem cs = getCoordinateSystem();
-		drawLine(-cs.getSectionWidth(), 0, cs.getSectionWidth(), 0);
-		drawLine(0, cs.getSectionHeight(), 0, -cs.getSectionHeight());
+		drawLine(-cs.sw(), 0, cs.sw(), 0);
+		drawLine(0, cs.sh(), 0, -cs.sh());
 
 		if (loop)
 			radians += 0.005;
