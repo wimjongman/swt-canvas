@@ -1,0 +1,12 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Birt
+Bundle-SymbolicName: swt.canvas.chart.birt
+Bundle-Version: 1.0.0.qualifier
+Automatic-Module-Name: swt.canvas.chart.birt
+Bundle-RequiredExecutionEnvironment: JavaSE-15
+Require-Bundle: com.ibm.examples.chart;bundle-version="1.0.0",
+ swt.canvas.core;bundle-version="1.0.0",
+ org.eclipse.birt.chart.engine,
+ org.eclipse.swt,
+ org.eclipse.birt.chart.device.swt

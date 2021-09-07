@@ -1,0 +1,19 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: BIRT Chart Example Plug-in
+Bundle-SymbolicName: com.ibm.examples.chart; singleton:=true
+Bundle-Version: 1.0.0
+Bundle-Activator: com.ibm.examples.chart.ChartPlugin
+Bundle-Vendor: IBM
+Bundle-Localization: plugin
+Require-Bundle: org.eclipse.ui,
+ org.eclipse.core.runtime,
+ org.eclipse.birt.chart.engine,
+ org.eclipse.birt.chart.engine.extension,
+ org.eclipse.birt.core,
+ org.eclipse.birt.chart.device.extension,
+ org.eclipse.emf.common,
+ org.eclipse.emf.ecore,
+ org.eclipse.birt.chart.device.swt,
+ swt.canvas.core
+Eclipse-AutoStart: true

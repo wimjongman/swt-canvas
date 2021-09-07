@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.0"?>
+<plugin>
+
+   <extension
+         id="application"
+         point="org.eclipse.core.runtime.applications">
+      <application>
+         <run
+               class="com.ibm.examples.chart.Application">
+         </run>
+      </application>
+   </extension>
+   <extension
+         point="org.eclipse.ui.perspectives">
+      <perspective
+            name="Chart Perspective"
+            class="com.ibm.examples.chart.Perspective"
+            id="com.ibm.examples.chart.perspective">
+      </perspective>
+   </extension>
+   <extension
+         point="org.eclipse.ui.editors">
+      <editor
+            class="com.ibm.examples.chart.editors.SampleEditor"
+            extensions="xml"
+            icon="icons/sample.gif"
+            id="com.ibm.examples.chart.editors.SampleEditor"
+            name="Sample Editor"/>
+   </extension>
+
+</plugin>
