@@ -9,7 +9,7 @@ import swt.canvas.core.coordinate.CartesianQuadrantI;
 public class Bar extends Engine {
 
 	public static void main(String[] args) {
-		new Bar().run();
+		new Bar().setWidth(400).setHeight(600).run();
 	}
 
 	private List<Column> fColumns = new ArrayList<>();
@@ -23,17 +23,16 @@ public class Bar extends Engine {
 		}
 		int pos = 0;
 		for (Column column : fColumns) {
-			System.out.print(" " + (pos * colWidth));
-			translate(pos * colWidth, 0);
+			getTransformer().translate(pos * colWidth, 0);
 			drawLine(colWidth / 2, 0, colWidth / 2, column.fValue);
 			drawRectangle(0, 0, colWidth - border, column.fValue);
 			pos++;
 		}
-		System.out.println();
 	}
 
 	@Override
 	public void init() {
+		setFPS(0);
 		setCoordinateSystem(CartesianQuadrantI.class);
 		addColumn("Bar1", 10, 80);
 		addColumn("Bar2", 20, 120);

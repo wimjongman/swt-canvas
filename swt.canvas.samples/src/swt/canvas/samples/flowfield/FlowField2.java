@@ -14,7 +14,7 @@ import swt.canvas.core.Engine;
 public class FlowField2 extends Engine {
 
 	public static void main(String[] args) {
-		new FlowField2().run();
+		new FlowField2().setWidth(400).setHeight(600).run();
 	}
 
 	private HashMap<Point, Double> fFlowField = new LinkedHashMap<>();
@@ -33,16 +33,14 @@ public class FlowField2 extends Engine {
 
 	@Override
 	public void draw() {
-		// popCanvas();
-		drawString(getFPS() + "", 0, 0);
+		drawString(getActualFPS() + "", 0, 0);
 		fParticles.forEach(particle -> drawParticle(particle));
 		// drawFlowField();
 		fCounter++;
-		if (fCounter > fFPS) {
+		if (fCounter > getActualFPS()) {
 			fCounter = 0;
 			updateFlowField(new Random().nextInt(3) + 1);
 		}
-		// pushCanvas();
 	}
 
 	@Override
@@ -70,7 +68,6 @@ public class FlowField2 extends Engine {
 			double angle = vector * TWO_PI;
 			int y = (int) (fResolution / 2 * Math.cos(angle));
 			int x = (int) (fResolution / 2 * Math.sin(angle));
-			Vector v = new Vector(x, y);
 			drawLine(point.x * fResolution + (fResolution / 2), point.y * fResolution + (fResolution / 2),
 					point.x * fResolution + (fResolution / 2) + x, point.y * fResolution + (fResolution / 2) + y);
 		});
@@ -78,8 +75,8 @@ public class FlowField2 extends Engine {
 
 	private void drawParticle(Vector particle) {
 
-//		drawCircle((int) particle.x, (int) particle.y, 5);
-		drawPoint((int) particle.x, (int) particle.y);
+		drawCircle((int) particle.x, (int) particle.y, 3);
+	//	drawPoint((int) particle.x, (int) particle.y);
 
 //		if (fPreviousParticle != null) {
 //			drawLine((int) particle.x, (int) particle.y, (int) fPreviousParticle.x, (int) fPreviousParticle.y);
@@ -113,9 +110,6 @@ public class FlowField2 extends Engine {
 
 	@Override
 	public void init() {
-		setHeight(300);
-		setWidth(300);
-		// setAlpha(200);
 		setFPS(50);
 	}
 
@@ -124,10 +118,4 @@ public class FlowField2 extends Engine {
 				|| particle.y > getHeight() - fResolution;
 	}
 
-//	@Override
-//	public Layout getLayout() {
-//		return super.getLayout() //
-//				.createCell("left", Layout.RIGHT, Layout.CANVAS, 30) //
-//				.createCell("bottom", Layout.RIGHT, Layout.CANVAS, 30);
-//	}
 }

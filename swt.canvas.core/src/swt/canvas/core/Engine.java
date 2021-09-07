@@ -13,11 +13,11 @@
  */
 package swt.canvas.core;
 
-import java.lang.invoke.MethodHandles;
 import java.util.List;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StackLayout;
+import org.eclipse.swt.graphics.Device;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Transform;
@@ -33,15 +33,6 @@ import swt.canvas.core.Layout.Cell;
 import swt.canvas.core.coordinate.BaseCoordinateSystem;
 
 public abstract class Engine {
-	/**
-	 * The bottom edge of the canvas
-	 */
-	public static int BOTTOM = 0;
-
-	/**
-	 * The left edge of the canvas
-	 */
-	public static int LEFT = 0;
 
 	/**
 	 * Pi
@@ -49,19 +40,11 @@ public abstract class Engine {
 	public static final double PI = Math.PI;
 
 	/**
-	 * The right edge of the canvas
-	 */
-	public static int RIGHT = 0;
-
-	/**
-	 * The top edge of the canvas
-	 */
-	public static int TOP = 0;
-
-	/**
 	 * Two Pi
 	 */
 	public static final double TWO_PI = Math.PI * 2;
+
+	Transformer fTransformer = new Transformer(this);
 
 	protected Canvas fCanvas;
 	protected Composite fCanvasCard;
@@ -73,7 +56,7 @@ public abstract class Engine {
 	protected long fLastDrawTimeStamp;
 
 	/** The current frames per second */
-	protected int fFPS = 0;
+	protected int fActualFPS = 0;
 	protected int fFPSCounter = 0;
 	protected int fFPSDelay = 20;
 
@@ -99,22 +82,39 @@ public abstract class Engine {
 
 	private Layout fLayout;
 
-	private Transform fTransform;
+	private boolean fInitDone;
+
+	private int fRequestedFPS;
+
+	private Shell fShell;
 
 	public Engine() {
+		fDisplay = Display.getDefault();
+		fShell = new Shell(fDisplay);
+		fLayout = getLayout();
+		createContents(fShell);
+		fShell.open();
+		fShell.layout();
+		// _resized();
+		createPaintListener();
+		fShell.addListener(SWT.Resize, e -> _resized());
+		fLastDrawTimeStamp = System.currentTimeMillis() + 1000;
+		fCanvas.redraw();
 	}
 
 	private void _loop() {
-		if (System.currentTimeMillis() > fLastDrawTimeStamp) {
-			fFPS = fFPSCounter;
-			fFPSCounter = 0;
-			fLastDrawTimeStamp = System.currentTimeMillis() + 1000;
-		} else {
-			fFPSCounter++;
-		}
+		if (getRequestedFPS() > 0) {
+			if (System.currentTimeMillis() > fLastDrawTimeStamp) {
+				fActualFPS = fFPSCounter;
+				fFPSCounter = 0;
+				fLastDrawTimeStamp = System.currentTimeMillis() + 1000;
+			} else {
+				fFPSCounter++;
+			}
 
-		if (!fCanvas.isDisposed()) {
-			fCanvas.redraw();
+			if (!fCanvas.isDisposed()) {
+				fCanvas.redraw();
+			}
 		}
 	}
 
@@ -148,10 +148,6 @@ public abstract class Engine {
 		fCanvas.getShell().layout();
 		fHeight = fCanvas.getSize().y;
 		fWidth = fCanvas.getSize().x;
-		LEFT = -fWidth / 2;
-		RIGHT = fWidth / 2;
-		TOP = fHeight / 2;
-		BOTTOM = -fHeight / 2;
 		fPushPopBuffer = null;
 		_setCoordinateSystem();
 		resized(fWidth, fHeight);
@@ -232,27 +228,22 @@ public abstract class Engine {
 	 */
 	protected void createPaintListener() {
 		fCanvas.addListener(SWT.Paint, e -> {
-			e.gc.setAdvanced(true);
-			e.gc.setAntialias(SWT.ON);
-			fGC = e.gc;
-			fGC.setLineWidth(fLineWidth);
-			fGC.setAlpha(fAlpha);
-			draw();
-			disposeTransform();
+			doPaint(e.gc);
 		});
 	}
 
-	private void disposeTransform() {
-		if(fTransform != null) {
-			fTransform.dispose();
+	private void doPaint(GC gc) {
+		gc.setAdvanced(true);
+		gc.setAntialias(SWT.ON);
+		fGC = gc;
+		fGC.setLineWidth(fLineWidth);
+		fGC.setAlpha(fAlpha);
+		if (!fInitDone) {
+			init();
+			fInitDone = true;
 		}
-	}
-
-	public void translate(float x, float y) {
-		disposeTransform();
-		fTransform = new Transform(fDisplay);
-		fTransform.translate(x, y);
-		fGC.setTransform(fTransform);
+		draw();
+		getTransformer().dispose();
 	}
 
 	/**
@@ -262,7 +253,7 @@ public abstract class Engine {
 	 * @return the transformed x
 	 */
 	public int cx(int x) {
-		return fCoordinateSystem.cx(x);
+		return getCoordinateSystem().cx(x);
 	}
 
 	/**
@@ -272,7 +263,14 @@ public abstract class Engine {
 	 * @return the transformed y
 	 */
 	public int cy(int y) {
-		return fCoordinateSystem.cy(y);
+		return getCoordinateSystem().cy(y);
+	}
+
+	public BaseCoordinateSystem getCoordinateSystem() {
+		if (fCoordinateSystem == null) {
+			_setCoordinateSystem();
+		}
+		return fCoordinateSystem;
 	}
 
 	/**
@@ -337,11 +335,23 @@ public abstract class Engine {
 	 * @param y
 	 * @param width
 	 * @param height
-	 * @return
 	 * @return this object, for fluent method chaining.
 	 */
 	public Engine drawOval(final int x, final int y, final int width, final int height) {
 		fGC.drawOval(cx(x - width / 2), cy(y + height / 2), width, height);
+		return this;
+	}
+
+	/**
+	 * Draws the passed image
+	 * 
+	 * @param img
+	 * @param x
+	 * @param y
+	 * @return this object, for fluent method chaining.
+	 */
+	public Engine drawImage(final Image img, final int x, final int y) {
+		fGC.drawImage(img, cx(x), cy(y));
 		return this;
 	}
 
@@ -407,10 +417,21 @@ public abstract class Engine {
 	}
 
 	/**
-	 * @return the current FPS
+	 * Returns the actual frames per second.
+	 * 
+	 * @return the actual FPS
 	 */
-	public int getFPS() {
-		return fFPS;
+	public int getActualFPS() {
+		return fActualFPS;
+	}
+
+	/**
+	 * Returns the requested frames per second.
+	 * 
+	 * @return the requested FPS
+	 */
+	public int getRequestedFPS() {
+		return fRequestedFPS;
 	}
 
 	/**
@@ -491,23 +512,19 @@ public abstract class Engine {
 	 * Starts the game loop.
 	 */
 	public void run() {
-		fDisplay = Display.getDefault();
-		Shell shell = new Shell(fDisplay);
-		init();
-		fLayout = getLayout();
-		createContents(shell);
-		shell.open();
-		shell.layout();
-		_resized();
-		createPaintListener();
-		shell.addListener(SWT.Resize, e -> _resized());
-		fLastDrawTimeStamp = System.currentTimeMillis() + 1000;
-		while (!shell.isDisposed()) {
+		while (!fShell.isDisposed()) {
 			fTimeStamp = System.currentTimeMillis() + fFPSDelay;
-			while (fTimeStamp > System.currentTimeMillis())
+			while (!fShell.isDisposed() && (getRequestedFPS() == 0 || fTimeStamp > System.currentTimeMillis()))
 				fDisplay.readAndDispatch();
 			_loop();
 		}
+	}
+
+	/**
+	 * @return true if the {@link #init()} routine has been called,false otherwise.
+	 */
+	public boolean isInitDone() {
+		return fInitDone;
 	}
 
 	public final void setCoordinateSystem(Class<? extends BaseCoordinateSystem> system) {
@@ -515,16 +532,30 @@ public abstract class Engine {
 	}
 
 	/**
-	 * Sets the frame rate or fps. This is the number of times per second the engine
-	 * tries to call the draw routine. Please note that a high frame rate also means
-	 * you have to be quick in the draw routine. The FPS may deteriorate if too much
-	 * time is spent in the draw routine.
+	 * Sets the frame rate in frames per second. This is the number of times per
+	 * second the engine attempts to call the draw routine. Please note that a high
+	 * frame rate also means you have to be quick in the draw routine. The FPS may
+	 * deteriorate if too much time is spent in the draw routine.
+	 * <p>
+	 * A fps of zero will only redraw on an external redraw request. Use this if you
+	 * do not require animation.
 	 * 
-	 * @param fps the frame rate in frames per second.
-	 * @return
+	 * @param fps the frame rate in frames per second, a negative number will be
+	 *            made positive.
+	 * 
+	 * @return this engine to support the fluent programming paradigm.
 	 */
 	public Engine setFPS(int fps) {
-		fFPSDelay = 1000 / fps;
+		fRequestedFPS = fps;
+		if (fps == 0) {
+			fFPSDelay = 0;
+		} else {
+			fFPSDelay = 1000 / fps;
+			if (fps < 0) {
+				fFPSDelay *= -1;
+				fRequestedFPS *= -1;
+			}
+		}
 		return this;
 	}
 
@@ -532,27 +563,35 @@ public abstract class Engine {
 	 * The height of the window.
 	 * 
 	 * @param height
+	 * @return this engine
 	 */
-	public void setHeight(int height) {
+	public Engine setHeight(int height) {
 		fHeight = height;
+		_resized();
+		return this;
 	}
 
 	/**
 	 * Sets the width of the line (stroke).
 	 * 
 	 * @param width the line width
+	 * @return this engine
 	 */
-	public void setLineWidth(final int width) {
+	public Engine setLineWidth(final int width) {
 		fLineWidth = width;
+		return this;
 	}
 
 	/**
 	 * The width of the window
 	 * 
 	 * @param width
+	 * @return this engine
 	 */
-	public void setWidth(int width) {
+	public Engine setWidth(int width) {
 		fWidth = width;
+		_resized();
+		return this;
 	}
 
 	/**
@@ -616,5 +655,26 @@ public abstract class Engine {
 	 * @param parent the parent composite
 	 */
 	public void createCell(Cell cell, Composite parent) {
+	}
+
+	public Device getDisplay() {
+		return fDisplay;
+	}
+
+	public GC getGC() {
+		return fGC;
+	}
+
+	/**
+	 * The {@link Transformer} is responsible for all transform operations like
+	 * translation.
+	 * 
+	 * @return the transformer of this engine which is never null.
+	 * 
+	 * @see Transformer
+	 * @see Transform
+	 */
+	public Transformer getTransformer() {
+		return fTransformer;
 	}
 }

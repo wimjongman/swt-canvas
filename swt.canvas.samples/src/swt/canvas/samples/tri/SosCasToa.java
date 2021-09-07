@@ -22,7 +22,7 @@ import swt.canvas.core.coordinate.Cartesian;
 public class SosCasToa extends Engine {
 
 	public static void main(String[] args) {
-		new SosCasToa().run();
+		new SosCasToa().setWidth(400).setHeight(600).run();
 	}
 
 	int radius = 100;
@@ -32,6 +32,7 @@ public class SosCasToa extends Engine {
 
 	@Override
 	public void init() {
+		setFPS(100);
 		setCoordinateSystem(Cartesian.class);
 		twoDecs.setMaximumFractionDigits(2);
 		setLineWidth(1);
@@ -44,17 +45,16 @@ public class SosCasToa extends Engine {
 		int x = (int) (radius * Math.sin(angle));
 
 		String msg = MessageFormat.format("Radius {0}, angle {1}, x {2}, y {3} ", radius, twoDecs.format(angle), x, y);
-		drawString(msg, LEFT, TOP);
+		drawString(msg, getWidth() + 10, getHeight() + 10);
 
 		drawLine(-(getWidth() / 2), 0, (getWidth() / 2), 0);
 		drawLine(0, (getHeight() / 2), 0, -(getHeight() / 2));
 
 		if (loop)
-			angle += 0.05;
+			angle += 0.005;
 
 		if (angle > TWO_PI)
 			angle = 0.01;
-
 
 		drawCircle(0, 0, radius);
 //		drawCircle(0, 0, x);

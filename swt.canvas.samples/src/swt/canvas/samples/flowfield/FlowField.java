@@ -27,7 +27,7 @@ import swt.canvas.core.Engine;
 public class FlowField extends Engine {
 
 	public static void main(String[] args) {
-		new FlowField().run();
+		new FlowField().setWidth(400).setHeight(600).run();
 	}
 
 	private HashMap<Point, Double> fFlowField = new LinkedHashMap<>();
@@ -44,7 +44,7 @@ public class FlowField extends Engine {
 
 	@Override
 	public void draw() {
-		drawString(getFPS() + "", 0, 0);
+		drawString(getActualFPS() + "", 0, 0);
 		fParticles.forEach(particle -> drawParticle(particle));
 		drawFlowField();
 		updateFlowField(1);
